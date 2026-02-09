@@ -275,7 +275,7 @@
               <label for="item">품목</label>
               <select id="item">
                 <option value="sterile_sand">무균모래</option>
-                <option value="desert_sand">데저드샌드</option>
+                <option value="desert_sand">데저트샌드</option>
                 <option value="ochre_soil">황토흙</option>
                 <option value="river_sand">강모래</option>
                 <option value="friend_sand">친모래</option>
@@ -424,7 +424,7 @@
     }
 
     function bagWeightByItem(v){
-      // 무균모래, 데저드샌드: 20kg / 황토흙, 강모래, 친모래: 18kg
+      // 무균모래, 데저트샌드: 20kg / 황토흙, 강모래, 친모래: 18kg
       if(v === "sterile_sand" || v === "desert_sand") return 20;
       return 18;
     }
