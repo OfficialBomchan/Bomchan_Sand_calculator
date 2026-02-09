@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>봄찬 황토흙 &amp; 모래 필요량 계산기</title>
+  <style>
+    :root{
+      --bg:#f6f7f7;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --line:rgba(15,23,42,.10);
+      --brand:#0a6a4f;
+      --brand-weak:#e7f2ee;
+      --shadow: 0 10px 28px rgba(15,23,42,.08);
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+      padding:16px 12px 28px;
+    }
+    .wrap{ width:min(720px, 100%); display:flex; flex-direction:column; gap:14px; }
+    .panel{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    .hero{
+      padding:16px 16px 14px;
+      border-bottom:1px solid var(--line);
+      background: linear-gradient(180deg, var(--brand-weak), #ffffff);
+    }
+    .brandRow{ display:flex; align-items:center; gap:10px; }
+    .logo{
+      width:34px; height:34px;
+      border-radius:10px;
+      background:#fff;
+      border:1px solid rgba(15,23,42,.08);
+      padding:6px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex:0 0 auto;
+    }
+    .logo svg{ width:100%; height:100%; display:block; }
+    .hero h1{
+      margin:0;
+      font-size:18px;
+      font-weight:900;
+      letter-spacing:-.02em;
+      line-height:1.2;
+    }
+    .hero p{
+      margin:8px 0 0;
+      color: var(--muted);
+      font-size:14px;
+      font-weight:700;
+      line-height:1.4;
+    }
+
+    .body{
+      padding:18px 16px;
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+    }
+    .module{
+      padding:16px;
+      border:1px solid rgba(15,23,42,.08);
+      background:#fff;
+      border-radius: 14px;
+    }
+    .sectionTitle{
+      margin:0 0 12px;
+      font-size:14px;
+      font-weight:900;
+      letter-spacing:-.01em;
+      color: var(--text);
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .dot{ width:8px; height:8px; border-radius:999px; background: var(--brand); display:inline-block; }
+
+    label{
+      display:block;
+      font-size:12px;
+      color: var(--muted);
+      margin:0 0 7px 2px;
+      font-weight:800;
+    }
+    select, input{
+      width:100%;
+      padding:13px 12px;
+      border-radius: 12px;
+      border:1px solid rgba(15,23,42,.14);
+      background:#fff;
+      color: var(--text);
+      outline:none;
+      font-size:15px;
+      font-weight:700;
+      transition: border .15s ease, box-shadow .15s ease;
+    }
+    input:focus, select:focus{
+      border-color: rgba(10,106,79,.55);
+      box-shadow: 0 0 0 4px rgba(10,106,79,.10);
+    }
+    input:disabled{
+      background:#f3f4f6;
+      color:#64748b;
+      cursor:not-allowed;
+    }
+
+    .grid{ display:grid; grid-template-columns: 1fr; gap:12px; }
+    @media (min-width: 680px){ .grid.two{ grid-template-columns: 1fr 1fr; } }
+
+    .seg{ display:flex; flex-direction:column; gap:10px; }
+    @media (min-width: 680px){ .seg{flex-direction:row; gap:0;} }
+    .seg button{
+      width:100%;
+      border:1px solid rgba(15,23,42,.14);
+      background:#fff;
+      color: var(--text);
+      padding:12px 12px;
+      border-radius: 12px;
+      font-weight:900;
+      font-size:13px;
+      cursor:pointer;
+      line-height:1.25;
+      text-align:left;
+    }
+    @media (min-width: 680px){
+      .seg button{ flex:1; border-radius:0; border-left:0; text-align:center; }
+      .seg button:first-child{ border-left:1px solid rgba(15,23,42,.14); border-top-left-radius:12px; border-bottom-left-radius:12px; }
+      .seg button:last-child{ border-top-right-radius:12px; border-bottom-right-radius:12px; }
+    }
+    .seg button.active{
+      border-color: rgba(10,106,79,.45);
+      background: rgba(10,106,79,.08);
+      box-shadow: inset 0 0 0 1px rgba(10,106,79,.10);
+    }
+
+    .note{
+      margin-top:10px;
+      color: var(--muted);
+      font-size:12px;
+      line-height:1.65;
+      font-weight:700;
+    }
+    .note b{ color: var(--text); }
+
+    .resultBox{
+      padding:18px 16px;
+      border-top:1px solid var(--line);
+      background: #fff;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+    .resultTitle{
+      margin:0;
+      font-size:14px;
+      font-weight:900;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .bigValue{
+      margin:0;
+      display:flex;
+      flex-wrap:wrap;
+      align-items:baseline;
+      gap:10px;
+      font-variant-numeric: tabular-nums;
+      letter-spacing:-.03em;
+      line-height:1.0;
+    }
+    .bigValue .bags{ font-size:54px; font-weight:1000; color: var(--brand); }
+    .bigValue .unit{ font-size:18px; font-weight:900; color: var(--text); }
+    .bigValue .kg{ font-size:16px; font-weight:800; color: var(--muted); }
+    @media (max-width:360px){ .bigValue .bags{font-size:48px;} }
+
+    .subrow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px 12px;
+      color: var(--muted);
+      font-size:12px;
+      font-weight:700;
+    }
+    .pill{
+      padding:7px 10px;
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:999px;
+      background:#f8fafc;
+    }
+    .pill b{ color: var(--text); font-variant-numeric: tabular-nums; }
+
+    .error{
+      display:none;
+      border:1px solid rgba(239,68,68,.25);
+      background: rgba(239,68,68,.06);
+      color:#991b1b;
+      padding:10px 12px;
+      border-radius: 12px;
+      font-size:13px;
+      font-weight:900;
+      margin-top:14px;
+    }
+
+    .actions{ display:flex; justify-content:flex-end; align-items:center; }
+    .ghostBtn{
+      border:1px solid rgba(15,23,42,.14);
+      background:#fff;
+      color: var(--text);
+      padding:11px 12px;
+      border-radius: 12px;
+      font-weight:900;
+      cursor:pointer;
+    }
+    .ghostBtn:hover{border-color: rgba(10,106,79,.35)}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="panel">
+      <div class="hero">
+        <div class="brandRow">
+          <div class="logo" aria-label="봄찬 로고">
+            <svg viewBox="0 0 120 120" role="img" aria-label="BOMCHAN">
+              <g fill="var(--brand)">
+                <rect x="6" y="6" width="52" height="52" rx="10"/>
+                <rect x="62" y="6" width="52" height="52" rx="10"/>
+                <rect x="6" y="62" width="52" height="52" rx="10"/>
+                <rect x="62" y="62" width="52" height="52" rx="10"/>
+              </g>
+              <g fill="#fff">
+                <rect x="18" y="18" width="12" height="28" rx="3"/>
+                <rect x="34" y="18" width="16" height="12" rx="3"/>
+                <rect x="34" y="34" width="16" height="12" rx="3"/>
+                <rect x="74" y="18" width="28" height="28" rx="6"/>
+                <rect x="82" y="26" width="12" height="12" rx="3" fill="var(--brand)"/>
+                <rect x="18" y="74" width="28" height="28" rx="6"/>
+                <rect x="18" y="88" width="40" height="10" rx="5"/>
+                <rect x="86" y="66" width="10" height="48" rx="5"/>
+                <path d="M66 104 L104 66 L112 74 L74 112 Z" />
+              </g>
+            </svg>
+          </div>
+          <div>
+            <h1>봄찬 황토흙 &amp; 모래 필요량 계산기</h1>
+          </div>
+        </div>
+        <p>몇 포대 주문하면 될 지 계산해드릴게요!</p>
+      </div>
+
+      <div class="body">
+        <!-- 1) Item -->
+        <div class="module">
+          <div class="sectionTitle"><span class="dot"></span>품목 선택!</div>
+          <div class="grid two">
+            <div>
+              <label for="item">품목</label>
+              <select id="item">
+                <option value="sterile_sand">무균모래</option>
+                <option value="desert_sand">데저드샌드</option>
+                <option value="ochre_soil">황토흙</option>
+                <option value="river_sand">강모래</option>
+                <option value="friend_sand">친모래</option>
+              </select>
+            </div>
+            <div>
+              <label>포대 기준(자동)</label>
+              <input id="bagKg" type="text" value="20kg/포대" disabled />
+            </div>
+          </div>
+        </div>
+
+        <!-- 2) Area -->
+        <div class="module">
+          <div class="sectionTitle"><span class="dot"></span>시공면적 입력!</div>
+
+          <div class="seg" role="tablist" aria-label="input mode">
+            <button id="modeWH" class="active" type="button" role="tab" aria-selected="true">
+              가로, 세로, 높이를 알고 계실 때
+            </button>
+            <button id="modePY" type="button" role="tab" aria-selected="false">
+              평수를 알고 계실 때
+            </button>
+          </div>
+
+          <!-- Mode A -->
+          <div id="modeA" style="margin-top:14px;">
+            <div class="grid two">
+              <div>
+                <label for="wCm">가로 (cm)</label>
+                <input id="wCm" inputmode="decimal" placeholder="예: 100" />
+              </div>
+              <div>
+                <label for="hCm">세로 (cm)</label>
+                <input id="hCm" inputmode="decimal" placeholder="예: 100" />
+              </div>
+            </div>
+
+            <div style="margin-top:12px;">
+              <label for="tCmA">높이/두께 (cm)</label>
+              <input id="tCmA" inputmode="decimal" placeholder="예: 4" />
+              <div class="note">
+                기준 예시: <b>100×100cm</b> 면적에 <b>4cm</b> 두께면 <b>20kg 4포대</b>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mode B -->
+          <div id="modeB" style="display:none; margin-top:14px;">
+            <div class="grid two">
+              <div>
+                <label for="pyeong">평수 (평)</label>
+                <input id="pyeong" inputmode="decimal" placeholder="예: 1" />
+              </div>
+              <div>
+                <label for="tCmB">높이/두께 (cm)</label>
+                <input id="tCmB" inputmode="decimal" placeholder="예: 4" />
+              </div>
+            </div>
+          </div>
+
+          <div id="errorBox" class="error">입력값을 확인하세요.</div>
+        </div>
+      </div>
+
+      <!-- 3) Result -->
+      <div class="resultBox">
+        <p class="resultTitle"><span class="dot"></span>결과</p>
+        <p class="bigValue">
+          <span class="bags" id="needBags">—</span>
+          <span class="unit">포대</span>
+          <span class="kg">(총 <span id="needKg">—</span>kg)</span>
+        </p>
+
+        <div class="subrow">
+          <div class="pill">면적: <b id="areaM2">—</b> m²</div>
+          <div class="pill">두께: <b id="thicknessCmOut">—</b> cm</div>
+          <div class="pill">포대당: <b id="bagKgOut">—</b> kg</div>
+          <div class="pill">기준: 1m² × 4cm = 80kg</div>
+        </div>
+
+        <div class="actions">
+          <button class="ghostBtn" id="resetBtn" type="button">초기화</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // 요구조건:
+    // 100cm x 100cm x 4cm => 20kg 4포대 = 80kg
+    // => 기준: 1m²를 4cm 두께로 포설할 때 80kg
+    const KG_PER_M2_AT_4CM = 80;
+    const BASE_THICKNESS_CM = 4;
+
+    const M2_PER_PYEONG = 3.305785;
+
+    const el = (id) => document.getElementById(id);
+
+    const item = el("item");
+    const bagKg = el("bagKg");
+
+    const modeWH = el("modeWH");
+    const modePY = el("modePY");
+    const modeA = el("modeA");
+    const modeB = el("modeB");
+
+    const wCm = el("wCm");
+    const hCm = el("hCm");
+    const tCmA = el("tCmA");
+
+    const pyeong = el("pyeong");
+    const tCmB = el("tCmB");
+
+    const needKg = el("needKg");
+    const needBags = el("needBags");
+    const areaM2 = el("areaM2");
+    const thicknessCmOut = el("thicknessCmOut");
+    const bagKgOut = el("bagKgOut");
+    const errorBox = el("errorBox");
+    const resetBtn = el("resetBtn");
+
+    let mode = "WH";
+
+    function setMode(next){
+      mode = next;
+      const isWH = mode === "WH";
+
+      modeWH.classList.toggle("active", isWH);
+      modeWH.setAttribute("aria-selected", String(isWH));
+      modePY.classList.toggle("active", !isWH);
+      modePY.setAttribute("aria-selected", String(!isWH));
+
+      modeA.style.display = isWH ? "block" : "none";
+      modeB.style.display = isWH ? "none" : "block";
+
+      if(isWH){
+        pyeong.value = "";
+        tCmB.value = "";
+      } else {
+        wCm.value = "";
+        hCm.value = "";
+        tCmA.value = "";
+      }
+      compute();
+    }
+
+    function bagWeightByItem(v){
+      // 무균모래, 데저드샌드: 20kg / 황토흙, 강모래, 친모래: 18kg
+      if(v === "sterile_sand" || v === "desert_sand") return 20;
+      return 18;
+    }
+
+    function parseNum(v){
+      const s = String(v ?? "").replace(/,/g,"").trim();
+      if(s === "") return NaN;
+      const n = Number(s);
+      return Number.isFinite(n) ? n : NaN;
+    }
+
+    function showError(msg){
+      errorBox.textContent = msg;
+      errorBox.style.display = "block";
+    }
+    function hideError(){
+      errorBox.style.display = "none";
+    }
+
+    function round2Fixed(n){
+      return (Math.round(n * 100) / 100).toFixed(2);
+    }
+
+    function compute(){
+      const bag = bagWeightByItem(item.value);
+      bagKg.value = `${bag}kg/포대`;
+      bagKgOut.textContent = String(bag);
+
+      let area = NaN;
+      let thickness = NaN;
+
+      if(mode === "WH"){
+        const w = parseNum(wCm.value);
+        const h = parseNum(hCm.value);
+        thickness = parseNum(tCmA.value);
+        if(Number.isFinite(w) && Number.isFinite(h)){
+          area = (w/100) * (h/100);
+        }
+      } else {
+        const py = parseNum(pyeong.value);
+        thickness = parseNum(tCmB.value);
+        if(Number.isFinite(py)){
+          area = py * M2_PER_PYEONG;
+        }
+      }
+
+      if(!(Number.isFinite(area) && area > 0 && Number.isFinite(thickness) && thickness > 0)){
+        needKg.textContent = "—";
+        needBags.textContent = "—";
+        areaM2.textContent = "—";
+        thicknessCmOut.textContent = "—";
+        showError("입력값을 확인하세요.");
+        return;
+      }
+
+      hideError();
+
+      // kg = (1m² * 4cm => 80kg) 기준으로 두께 비례
+      const kg = KG_PER_M2_AT_4CM * area * (thickness / BASE_THICKNESS_CM);
+
+      const kgRounded = Math.round(kg);
+      const bags = Math.ceil(kg / bag);
+
+      needKg.textContent = String(kgRounded);
+      needBags.textContent = String(bags);
+
+      areaM2.textContent = round2Fixed(area);
+      thicknessCmOut.textContent = (Math.round(thickness*100)/100).toString();
+    }
+
+    modeWH.addEventListener("click", () => setMode("WH"));
+    modePY.addEventListener("click", () => setMode("PY"));
+
+    item.addEventListener("change", compute);
+    [wCm, hCm, tCmA, pyeong, tCmB].forEach(inp => {
+      inp.addEventListener("input", compute);
+      inp.addEventListener("change", compute);
+    });
+
+    resetBtn.addEventListener("click", () => {
+      item.value = "sterile_sand";
+      setMode("WH");
+      wCm.value = "";
+      hCm.value = "";
+      tCmA.value = "";
+      pyeong.value = "";
+      tCmB.value = "";
+      compute();
+    });
+
+    compute();
+  </script>
+</body>
+</html>
